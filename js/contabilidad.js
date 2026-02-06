@@ -1,125 +1,76 @@
-//CONTABILIDAD LOGICA DE LA TABLA Y EL FORMULARIO
+// ===============================
+// CONTABILIDAD - app cindy calculadora
+// ===============================
 
 const form = document.getElementById("form-contabilidad");
 const inputNombre = document.getElementById("input-nombre");
 const inputSalario = document.getElementById("input-salario");
 const tablaBody = document.getElementById("tabla-contabilidad");
 
+// Validación de nombre
 inputNombre.addEventListener("input", () => {
   inputNombre.value = inputNombre.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, "");
 });
 
-// ---- Formatear la moneda ----
+// Formato moneda (SOLO VISUAL)
 function formatearMoneda(valor) {
-  return new Intl.NumberFormat("es-SV", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2
-  }).format(valor);
+  return `$${valor.toFixed(2)}`;
 }
 
-function limpiarInputs() {
-  inputNombre.value = "";
-  inputSalario.value = "";
-  inputNombre.focus();
-}
-
-// ---- Validaciones ----
+// Validaciones
 function validarDatos(nombre, salario) {
-
-  nombre = nombre.trim();
-
-  // Validacion del nombre
-  const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-
-  if (!nombre || nombre.length < 2) {
-    alert("⚠️ Ingrese un nombre válido (mínimo 2 letras).");
-    return false;
-  }
-
-  // Evita espacios dobles o nombre solo con espacios
-  if (!soloLetras.test(nombre)) {
-    alert("⚠️ El nombre solo debe contener letras y espacios.");
-    return false;
-  }
-
-  if (salario === "" || salario === null || salario === undefined) {
-    alert("⚠️ Ingrese el sueldo.");
-    return false;
-  }
-
-  salario = parseFloat(salario);
-
-  if (isNaN(salario)) {
-    alert("⚠️ El sueldo debe ser numérico.");
-    return false;
-  }
-
-  if (salario <= 0) {
-    alert("⚠️ El sueldo debe ser mayor a 0.");
-    return false;
-  }
-
+  if (!nombre || nombre.length < 2) return false;
+  if (isNaN(salario) || salario <= 0) return false;
   return true;
 }
 
-// ===============================
+// CÁLCULOS (SIN REDONDEAR)
 
-// ISSS
-function calcularISSS(sueldo) {
-  const isss = sueldo * 0.03;
-  return Math.min(isss, 30);
+// ISSS 3% tope 30
+function calcularISSS(sueldo, aplicar) {
+  if (!aplicar) return 0;
+  let isss = sueldo * 0.03;
+  if (isss > 30) isss = 30;
+  return isss; // ❌ NO redondear
 }
 
-// AFP
-function calcularAFP(sueldo) {
-  return sueldo * 0.0725;
+// AFP 7.25% tope 581.21
+function calcularAFP(sueldo, aplicar) {
+  if (!aplicar) return 0;
+  let afp = sueldo * 0.0725;
+  if (afp > 581.21) afp = 581.21;
+  return afp; // ❌ NO redondear
 }
 
-// Renta imponible = sueldo - descuentos (ISSS + AFP)
-function calcularRentaImponible(sueldo, isss, afp) {
-  const sueldoC = Math.round(sueldo * 100);
-  const isssC   = Math.round(isss * 100);
-  const afpC    = Math.round(afp * 100);
-
-  const rentaC = sueldoC - (isssC + afpC);
-  return rentaC / 100;
+// Renta imponible
+function calcularRenta(sueldo, isss, afp) {
+  return sueldo - isss - afp;
 }
 
-// ISR 
+// ISR mensual EXACTO
 function calcularISR(renta) {
+  let isr = 0;
 
-  // I TRAMO: Exento
-  if (renta <= 550.00) return 0;
-
-  // II TRAMO: 10% sobre exceso de $550.00 + cuota fija $17.67
-  if (renta <= 895.24) {
-    return (renta - 550.00) * 0.10 + 17.67;
+  if (renta <= 550.00) {
+    isr = 0;
+  } else if (renta <= 895.24) {
+    isr = 17.67 + (renta - 550.00) * 0.10;
+  } else if (renta <= 2038.10) {
+    isr = 60.00 + (renta - 895.24) * 0.20;
+  } else {
+    isr = 288.57 + (renta - 2038.10) * 0.30;
   }
 
-  // III TRAMO: 20% sobre exceso de $895.24 + cuota fija $60.00
-  if (renta <= 2038.10) {
-    return (renta - 895.24) * 0.20 + 60.00;
-  }
-
-  // IV TRAMO: 30% sobre exceso de $2,038.10 + cuota fija $288.57
-  return (renta - 2038.10) * 0.30 + 288.57;
+  return isr;
 }
 
-// Sueldo líquido = sueldo - isss - afp - isr
-function calcularSueldoLiquido(sueldo, isss, afp, isr) {
-  const sueldoC = Math.round(sueldo * 100);
-  const isssC   = Math.round(isss * 100);
-  const afpC    = Math.round(afp * 100);
-  const isrC    = Math.round(isr * 100);
-
-  const liquidoC = sueldoC - (isssC + afpC + isrC);
-  return liquidoC / 100;
+// Sueldo líquido
+function calcularLiquido(sueldo, isss, afp, isr) {
+  return sueldo - isss - afp - isr;
 }
 
 
-//  RENDER FILA EN TABLA
-
+// TABLA
 function agregarFilaTabla({ nombre, sueldo, isss, afp, renta, isr, liquido }) {
   const tr = document.createElement("tr");
 
@@ -136,50 +87,23 @@ function agregarFilaTabla({ nombre, sueldo, isss, afp, renta, isr, liquido }) {
   tablaBody.appendChild(tr);
 }
 
-function mostrarMensajeTablaVacia() {
-  if (tablaBody.children.length === 0) {
-    tablaBody.innerHTML = `
-      <tr id="fila-vacia">
-        <td colspan="7" class="text-center text-muted py-4">
-          ⚠️ No hay registros. Complete los campos obligatorios.
-        </td>
-      </tr>
-    `;
-  }
-}
-
-// Quita el mensaje si existe
-function quitarMensajeTablaVacia() {
-  const fila = document.getElementById("fila-vacia");
-  if (fila) fila.remove();
-}
-
-
-//  EVENTO CALCULAR Y SUBIR A LA TABLA
-
+// SUBMIT
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const nombre = inputNombre.value.trim();
   const sueldo = parseFloat(inputSalario.value);
+  const aplicar =
+    document.querySelector('input[name="descuentos"]:checked').value === "si";
 
   if (!validarDatos(nombre, sueldo)) return;
 
-  if(agregarFilaTabla===null){
-    alert("Debe llenar los campos");
+  const isss = calcularISSS(sueldo, aplicar);
+  const afp = calcularAFP(sueldo, aplicar);
+  const renta = calcularRenta(sueldo, isss, afp);
+  const isr = calcularISR(renta);
+  const liquido = calcularLiquido(sueldo, isss, afp, isr);
 
-  }
-
-  // cálculos
-  const isss = calcularISSS(sueldo);
-  const afp = calcularAFP(sueldo);
-  const renta = calcularRentaImponible(sueldo, isss, afp);
-  const isr = parseFloat(calcularISR(renta).toFixed(2));
-  const liquido = calcularSueldoLiquido(sueldo, isss, afp, isr);
-
-  quitarMensajeTablaVacia(); 
-
-  // agregar fila
   agregarFilaTabla({
     nombre,
     sueldo,
@@ -190,7 +114,6 @@ form.addEventListener("submit", (e) => {
     liquido
   });
 
-  limpiarInputs();
+  inputNombre.value = "";
+  inputSalario.value = "";
 });
-
-mostrarMensajeTablaVacia();
