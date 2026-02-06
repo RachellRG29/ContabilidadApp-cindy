@@ -33,7 +33,7 @@ body{
 .div1{
   align-content: center;
   gap: 15px;
-  justify-content: center;
+  margin-left: 30px;
 }
 
 /* Limitar ancho del card para que no se pegue */
