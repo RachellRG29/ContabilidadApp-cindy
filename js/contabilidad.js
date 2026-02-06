@@ -46,6 +46,20 @@ function calcularAFP(sueldo, aplicar) {
 function calcularRenta(sueldo, isss, afp) {
   return sueldo - isss - afp;
 }
+ 
+//calcular que tramo uso
+function obtenerTramoISR(renta) {
+  if (renta <= 550.00) {
+    return "Tramo 1 (Exento)";
+  } else if (renta <= 895.24) {
+    return "Tramo 2 (10%)";
+  } else if (renta <= 2038.10) {
+    return "Tramo 3 (20%)";
+  } else {
+    return "Tramo 4 (30%)";
+  }
+}
+
 
 // ISR mensual EXACTO
 function calcularISR(renta) {
@@ -71,7 +85,7 @@ function calcularLiquido(sueldo, isss, afp, isr) {
 
 
 // TABLA
-function agregarFilaTabla({ nombre, sueldo, isss, afp, renta, isr, liquido }) {
+function agregarFilaTabla({ nombre, sueldo, isss, afp, renta, tramo, isr, liquido }) {
   const tr = document.createElement("tr");
 
   tr.innerHTML = `
@@ -80,6 +94,7 @@ function agregarFilaTabla({ nombre, sueldo, isss, afp, renta, isr, liquido }) {
     <td>${formatearMoneda(isss)}</td>
     <td>${formatearMoneda(afp)}</td>
     <td>${formatearMoneda(renta)}</td>
+    <td><span class="badge bg-secondary">${tramo}</span></td>
     <td>${formatearMoneda(isr)}</td>
     <td><b>${formatearMoneda(liquido)}</b></td>
   `;
@@ -103,6 +118,7 @@ form.addEventListener("submit", (e) => {
   const renta = calcularRenta(sueldo, isss, afp);
   const isr = calcularISR(renta);
   const liquido = calcularLiquido(sueldo, isss, afp, isr);
+  const tramo = obtenerTramoISR(renta);
 
   agregarFilaTabla({
     nombre,
@@ -110,9 +126,11 @@ form.addEventListener("submit", (e) => {
     isss,
     afp,
     renta,
+    tramo,
     isr,
     liquido
   });
+
 
   inputNombre.value = "";
   inputSalario.value = "";
