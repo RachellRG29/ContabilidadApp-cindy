@@ -6,77 +6,40 @@
   font-family: 'Raleway';
 }
 
-body{
-  background-color: #3C3D47;
+.layout{
+  display:flex;
+  height:100vh;
 }
 
-.parent {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(5, 1fr);
-  grid-column-gap: 0px;
-  grid-row-gap: 0px;
-
-  gap: 30px;
+.sidebar{
+  width:250px;
+  background:#1e293b;
+  color:white;
+  padding:20px;
 }
 
-.parent{
-  min-height: calc(100vh - 180px);
+.sidebar h2{
+  font-size:20px;
+  margin-bottom:30px;
 }
 
-.div1, .div2{
-  display: grid;
-  justify-items: center;   /* centra horizontal */
-  align-items: center;     /* centra vertical */
+.sidebar button{
+  width:100%;
+  margin-bottom:15px;
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.2);
+  color:white;
 }
 
-.div1{
-  align-content: center;
-  gap: 15px;
-  margin-left: 30px;
+.sidebar button.active{
+  background:white;
+  color:#1e293b;
+  font-weight:bold;
 }
 
-/* Limitar ancho del card para que no se pegue */
-.div1 .card{
-  width: 100%;
-  max-width: 950px;
-}
-
-.div2 form{
-  width: 100%;
-  max-width: 420px;
-}
-
-.div1 { grid-area: 1 / 1 / 6 / 4; }
-.div2 { grid-area: 1 / 4 / 6 / 6; }
-
-.lbl-titulo{
-  color: #accef9;
-  font-weight: 600;
-  display: flex;
-  justify-content: center;
-  margin-top: 40px;
-}
-
-.lbl-subtitulo{
-  display: flex;
-  justify-content: center;
-  color: #accef9;
-}
-
-@media screen and (max-width: 768px) {
-  .parent{
-    display: flex;
-    position: relative;
-    flex-direction: column;
-  }
-
-  .div1{
-    order: 2;
-  }
-
-  .div2{
-    order: 1;
-  }
-  
+.content{
+  flex:1;
+  padding: 10px;
+  background:#f1f5f9; 
+  overflow-y:auto;
 }

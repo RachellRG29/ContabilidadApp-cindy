@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Libro Diario - Empresa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body { background:#f4f6f9; font-family:Segoe UI; }
+.partida {
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:20px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+.cuenta-t {
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:15px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+</style>
+</head>
+<body>
+
+<div class="container mt-4">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">📘 Libro Diario Empresarial</h2>
+    <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modalIntegrantes">
+        Integrantes
+    </button>
+</div>
+
+
+<div class="card mb-4">
+<div class="card-body">
+<input type="text" id="inputOperacion" class="form-control mb-3"
+placeholder="Ejemplo: quiero comprar un producto de $2000">
+<button class="btn btn-primary" onclick="procesarOperacion()">Registrar Partida</button>
+</div>
+</div>
+
+<h4>Libro Diario</h4>
+<div id="libroDiario"></div>
+
+<h4 class="mt-4">Libro Mayor</h4>
+<div id="libroMayor"></div>
+
+</div>
+
+<!-- Modal Integrantes -->
+<div class="modal fade" id="modalIntegrantes" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Integrantes</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <ul>
+          <li>Gilberto Lizama Hernandez</li>
+          <li>Nahun Ezequiel Martinez Argueta</li>
+          <li>Yaritza Marcela Jimenez Escobar</li>
+          <li>Cindy Rachell Ramirez Garcia</li>
+        </ul>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script src="js/libro-diario.js"></script>
+</body>
+</html>

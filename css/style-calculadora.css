@@ -1,0 +1,67 @@
+
+.parent {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+}
+
+.parent{
+  min-height: calc(100vh - 200px);
+}
+
+.div1, .div2{
+  display: grid;
+  justify-items: center;   /* centra horizontal */
+  align-items: center;     /* centra vertical */
+}
+
+.div1{
+  align-content: center;
+}
+
+/* Limitar ancho del card para que no se pegue */
+.div1 .card{
+  width: 100%;
+}
+
+.div2 form{
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+}
+
+.div1 { grid-area: 1 / 1 / 6 / 4; }
+.div2 { grid-area: 1 / 4 / 6 / 6; }
+
+.lbl-titulo{
+  color: #accef9;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.lbl-subtitulo{
+  display: flex;
+  justify-content: center;
+  color: #accef9;
+}
+
+@media screen and (max-width: 768px) {
+  .parent{
+    display: flex;
+    position: relative;
+    flex-direction: column;
+  }
+
+  .div1{
+    order: 2;
+  }
+
+  .div2{
+    order: 1;
+  }
+  
+}

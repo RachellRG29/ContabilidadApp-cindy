@@ -1,78 +1,31 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Libro Diario - Empresa</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
-body { background:#f4f6f9; font-family:Segoe UI; }
-.partida {
-    background:white;
-    padding:15px;
-    border-radius:10px;
-    margin-bottom:20px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-.cuenta-t {
-    background:white;
-    padding:15px;
-    border-radius:10px;
-    margin-bottom:15px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-</style>
-</head>
-<body>
-
-<div class="container mt-4">
-
-<h2 class="text-center mb-4">📘 Libro Diario Empresarial</h2>
-
-<div class="card mb-4">
-<div class="card-body">
-<input type="text" id="inputOperacion" class="form-control mb-3"
-placeholder="Ejemplo: quiero comprar un producto de $2000">
-<button class="btn btn-primary" onclick="procesarOperacion()">Registrar Partida</button>
-</div>
-</div>
-
-<h4>Libro Diario</h4>
-<div id="libroDiario"></div>
-
-<h4 class="mt-4">Libro Mayor</h4>
-<div id="libroMayor"></div>
-
-</div>
-
-<script src="js/libro-diario.js"></script>
-</body>
-</html>
-
-
-//libro js funcional
 // =======================================
 // LIBRO DIARIO CON PARTIDAS NUMERADAS
 // =======================================
 
 const IVA = 0.13;
 let numeroPartida = 1;
-let aporteInicialRegistrado = false; // ✅ Validación obligatoria
+let aporteInicialRegistrado = false;
 
 // CATÁLOGO OFICIAL
 const cuentas = {
     1101: { nombre: "Efectivo y Equivalentes", debe: 0, haber: 0 },
+    1102: { nombre: "Bancos", debe: 0, haber: 0 },
     1103: { nombre: "Cuentas por Cobrar Clientes", debe: 0, haber: 0 },
     1104: { nombre: "IVA Crédito Fiscal (13%)", debe: 0, haber: 0 },
     1105: { nombre: "Inventarios", debe: 0, haber: 0 },
+    1106: { nombre: "Documentos por Cobrar", debe: 0, haber: 0 },
     1201: { nombre: "Propiedad, Planta y Equipo", debe: 0, haber: 0 },
+    1202: { nombre: "Mobiliario y Equipo", debe: 0, haber: 0 },
     2101: { nombre: "Cuentas por Pagar Proveedores", debe: 0, haber: 0 },
     2102: { nombre: "IVA Débito Fiscal (13%)", debe: 0, haber: 0 },
+    2103: { nombre: "Documentos por Pagar", debe: 0, haber: 0 },
     3101: { nombre: "Capital Social", debe: 0, haber: 0 },
     4101: { nombre: "Ventas", debe: 0, haber: 0 },
     4102: { nombre: "Rebajas y Devoluciones s/ Ventas", debe: 0, haber: 0 },
     5101: { nombre: "Compras", debe: 0, haber: 0 },
-    5102: { nombre: "Gastos de Venta", debe: 0, haber: 0 }
+    5102: { nombre: "Gastos de Venta", debe: 0, haber: 0 },
+    5103: { nombre: "Gastos de Alquiler", debe: 0, haber: 0 },
+    5104: { nombre: "Gastos de Publicidad", debe: 0, haber: 0 }
 };
 
 const libroDiario = document.getElementById("libroDiario");
@@ -99,9 +52,7 @@ function procesarOperacion() {
     // =====================
     // APORTE (OBLIGATORIO PRIMERO)
     // =====================
-    if (texto.includes("aportar") || 
-        texto.includes("aporte") || 
-        texto.includes("capital")) {
+    if (texto.includes("aporte") || texto.includes("aportar") || texto.includes("capital")) {
 
         movimientos.push({ codigo:1101, tipo:"debe", monto:monto });
         movimientos.push({ codigo:3101, tipo:"haber", monto:monto });
@@ -109,35 +60,109 @@ function procesarOperacion() {
         aporteInicialRegistrado = true;
     }
 
-    // 🚨 VALIDACIÓN
     else if (!aporteInicialRegistrado) {
-        return alert("⚠️ Debe registrar primero un APORTE DE CAPITAL antes de realizar otras operaciones.");
+        return alert("⚠️ Debe registrar primero un APORTE DE CAPITAL.");
     }
 
     // =====================
-    // COMPRA
+    // COMPRA DE MOBILIARIO CONTADO
+    // =====================
+    else if (texto.includes("mobiliario") || texto.includes("equipo de oficina")) {
+
+        movimientos.push({ codigo:1202, tipo:"debe", monto:monto });
+        movimientos.push({ codigo:1104, tipo:"debe", monto:iva });
+        movimientos.push({ codigo:1101, tipo:"haber", monto:monto + iva });
+    }
+
+    // =====================
+    // COMPRA AL CRÉDITO
+    // =====================
+    else if ((texto.includes("comprar") || texto.includes("compra")) &&
+             (texto.includes("credito") || texto.includes("crédito") || texto.includes("fiado"))) {
+
+        movimientos.push({ codigo:5101, tipo:"debe", monto:monto });
+        movimientos.push({ codigo:1104, tipo:"debe", monto:iva });
+        movimientos.push({ codigo:2101, tipo:"haber", monto:monto + iva });
+    }
+
+    // =====================
+    // COMPRA CONTADO
     // =====================
     else if (texto.includes("comprar") || texto.includes("compra")) {
 
         movimientos.push({ codigo:5101, tipo:"debe", monto:monto });
         movimientos.push({ codigo:1104, tipo:"debe", monto:iva });
         movimientos.push({ codigo:1101, tipo:"haber", monto:monto + iva });
-
     }
 
     // =====================
-    // VENTA
+    // VENTA CON PAGARÉ
     // =====================
-    else if (texto.includes("vender") || texto.includes("venta")) {
+    else if (texto.includes("pagare") || texto.includes("pagaré")) {
+
+        movimientos.push({ codigo:1106, tipo:"debe", monto:monto + iva });
+        movimientos.push({ codigo:4101, tipo:"haber", monto:monto });
+        movimientos.push({ codigo:2102, tipo:"haber", monto:iva });
+    }
+
+    // =====================
+    // VENTA CONTADO
+    // =====================
+    else if (texto.includes("venta") || texto.includes("vender")) {
 
         movimientos.push({ codigo:1101, tipo:"debe", monto:monto + iva });
         movimientos.push({ codigo:4101, tipo:"haber", monto:monto });
         movimientos.push({ codigo:2102, tipo:"haber", monto:iva });
+    }
 
+    // =====================
+    // PAGO A PROVEEDORES
+    // =====================
+    else if (texto.includes("proveedor")) {
+
+        movimientos.push({ codigo:2101, tipo:"debe", monto:monto });
+        movimientos.push({ codigo:1101, tipo:"haber", monto:monto });
+    }
+
+    // =====================
+    // DEVOLUCIÓN SOBRE COMPRA
+    // =====================
+    else if (texto.includes("devol")) {
+
+        movimientos.push({ codigo:2101, tipo:"debe", monto:monto + iva });
+        movimientos.push({ codigo:5101, tipo:"haber", monto:monto });
+        movimientos.push({ codigo:1104, tipo:"haber", monto:iva });
+    }
+
+    // =====================
+    // PAGO DE ALQUILER
+    // =====================
+    else if (texto.includes("alquiler") || texto.includes("renta")) {
+
+        movimientos.push({ codigo:5103, tipo:"debe", monto:monto });
+        movimientos.push({ codigo:1101, tipo:"haber", monto:monto });
+    }
+
+    // =====================
+    // COBRO A CLIENTES
+    // =====================
+    else if (texto.includes("clientes") || texto.includes("cobro") || texto.includes("recibimos")) {
+
+        movimientos.push({ codigo:1101, tipo:"debe", monto:monto });
+        movimientos.push({ codigo:1106, tipo:"haber", monto:monto });
+    }
+
+    // =====================
+    // GASTO DE PUBLICIDAD
+    // =====================
+    else if (texto.includes("publicidad") || texto.includes("radio") || texto.includes("pauta")) {
+
+        movimientos.push({ codigo:5104, tipo:"debe", monto:monto });
+        movimientos.push({ codigo:1101, tipo:"haber", monto:monto });
     }
 
     else {
-        return alert("Use aportar, comprar o vender en el texto.");
+        return alert("Operación no reconocida.");
     }
 
     registrarPartida(movimientos);
